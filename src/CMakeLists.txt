@@ -1,1 +1,3 @@
 add_subdirectory(srrg_semantic_extraction_trigger)
+add_subdirectory(examples)
+

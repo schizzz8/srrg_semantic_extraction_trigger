@@ -16,7 +16,7 @@ StructureAnalyzer::StructureAnalyzer(){
 }
 
 void StructureAnalyzer::initGrid(){
-    Eigen::Vector3f upper;
+    Eigen::Vector3f upper = Eigen::Vector3f::Zero();
     _cloud.computeBoundingBox(_origin,upper);
 
     Eigen::Vector3f range = upper - _origin;
@@ -69,7 +69,6 @@ void StructureAnalyzer::compute(){
         int r=projected_point.y();
         int c=projected_point.x();
 
-        //cerr << r << "," << c << " ";
         if (r>=_rows || r<0)
             continue;
         if (c>=_cols || r<0)
@@ -124,5 +123,6 @@ void StructureAnalyzer::compute(){
                 cell=0;
             }
         }
+
 }
 }

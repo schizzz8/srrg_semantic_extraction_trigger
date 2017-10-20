@@ -1,0 +1,7 @@
+add_executable(srrg_semantic_extraction_trigger_example srrg_semantic_extraction_trigger_example.cpp)
+
+target_link_libraries(srrg_semantic_extraction_trigger_example
+  srrg_semantic_extraction_trigger_library
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+)

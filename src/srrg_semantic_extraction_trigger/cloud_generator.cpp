@@ -13,8 +13,8 @@ CloudGenerator::CloudGenerator(){
 
 }
 
-void CloudGenerator::setImage(string path){
-    _image = cv::imread(path);
+void CloudGenerator::setImage(const cv::Mat &image_){
+    _image = image_.clone();
     _rows = _image.rows;
     _cols = _image.cols;
 

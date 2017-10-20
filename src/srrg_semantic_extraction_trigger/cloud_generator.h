@@ -12,7 +12,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     CloudGenerator();
 
-    void setImage(std::string path);
+    void setImage(const cv::Mat& image_);
     inline void setInverseK(const Eigen::Matrix3f& K_){_iK = K_.inverse();}
     inline void setSensorOffset(const Eigen::Isometry3f& sensor_offset_){_sensor_offset = sensor_offset_;}
 

@@ -28,16 +28,19 @@ SemanticExtractionTrigger::SemanticExtractionTrigger(CloudGenerator *cloud_gener
 
 void SemanticExtractionTrigger::generateCloud(){
 
-    _cloud_generator->setImage(_depth_image_path);
-    _cloud_generator->setInverseK(_K);
-    _cloud_generator->setSensorOffset(_sensor_offset);
-
     _cloud_generator->compute();
     _cloud = _cloud_generator->cloud();
+
+    cerr << "saving cloud..." << endl;
+    std::ofstream outfile;
+    outfile.open("depth.cloud");
+    _cloud->write(outfile);
+    outfile.close();
 }
 
 void SemanticExtractionTrigger::analyzeStructure(){
     _structure_analyzer->setCloud(_cloud);
+    _structure_analyzer->initGrid();
 
     _structure_analyzer->compute();
     _classified_image = _structure_analyzer->classified().clone();
@@ -46,6 +49,7 @@ void SemanticExtractionTrigger::analyzeStructure(){
 void SemanticExtractionTrigger::extractClusters(){
     int rows = _classified_image.rows;
     int cols = _classified_image.cols;
+
     IntImage regions;
     regions.create(rows,cols);
     for (int r=0;r<rows; ++r) {
@@ -63,6 +67,42 @@ void SemanticExtractionTrigger::extractClusters(){
 
     _clusters_extractor->compute();
     _clusters = _clusters_extractor->clusters();
+
+}
+
+void SemanticExtractionTrigger::processClusters(string path){
+
+    cv::Mat map = cv::imread(path);
+
+    float resolution = 0.05f;
+    Eigen::Vector3f origin (-23.4f,-12.2f,0);
+
+    for(int i=0; i<_clusters.size(); i++){
+
+        ClustersExtractor::Cluster cluster = _clusters[i];
+
+        Eigen::Vector3f a_w (cluster.lower.y()*resolution + _structure_analyzer->origin().x(),
+                             (_classified_image.rows-cluster.upper.x()-1)*resolution + _structure_analyzer->origin().y(),
+                             0);
+        Eigen::Vector3f d_w (cluster.upper.y()*resolution + _structure_analyzer->origin().x(),
+                             (_classified_image.rows-cluster.lower.x()-1)*resolution + _structure_analyzer->origin().y(),
+                             0);
+
+        Eigen::Vector3f a_g = (a_w - origin)/resolution;
+        Eigen::Vector3f d_g = (d_w - origin)/resolution;
+
+        cv::Point2i a_gp (a_g.x(),map.rows-a_g.y()-1);
+        cv::Point2i d_gp (d_g.x(),map.rows-d_g.y()-1);
+
+        cv::rectangle(map,
+                      a_gp,
+                      d_gp,
+                      cv::Scalar(255,0,0),
+                      1);
+    }
+
+    cv::imshow("map with bounding boxes",map);
+    cv::waitKey();
 
 }
 

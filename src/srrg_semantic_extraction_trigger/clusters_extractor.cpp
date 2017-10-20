@@ -21,7 +21,7 @@ void ClustersExtractor::init() {
     int rows = _regions_image->rows;
     int cols = _regions_image->cols;
     if(rows<3 || cols<3){
-        throw std::runtime_error("map too small to compute clustrer map");
+        throw std::runtime_error("map too small to compute clusterer map");
     }
 
     PathMap& output=*_output_path_map;

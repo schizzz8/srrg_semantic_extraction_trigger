@@ -18,6 +18,7 @@ public:
 
     void compute();
 
+    const Eigen::Vector3f& origin(){return _origin;}
     const srrg_core::UnsignedCharImage& classified(){return _classified;}
 
 private:

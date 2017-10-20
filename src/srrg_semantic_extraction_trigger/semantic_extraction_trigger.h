@@ -13,15 +13,19 @@ public:
                               StructureAnalyzer* structure_analyzer_=0,
                               ClustersExtractor* clusters_extractor_=0);
 
-    inline void setDepthImagePath(std::string depth_image_path_){_depth_image_path=depth_image_path_;}
-    inline void setK(const Eigen::Matrix3f& K_){_K = K_;}
-    inline void setSensorOffset(const Eigen::Isometry3f& sensor_offset_){_sensor_offset=sensor_offset_;}
+    inline void setDepthImage(const cv::Mat& image_){_cloud_generator->setImage(image_);}
+    inline void setK(const Eigen::Matrix3f& K_){_cloud_generator->setInverseK(K_);}
+    inline void setSensorOffset(const Eigen::Isometry3f& sensor_offset_){_cloud_generator->setSensorOffset(sensor_offset_);}
 
     void generateCloud();
 
     void analyzeStructure();
 
     void extractClusters();
+
+    const ClustersExtractor::ClusterVector& clusters(){return _clusters;}
+
+    void processClusters(std::string path);
 
 private:
     cv::Mat _map_image;
