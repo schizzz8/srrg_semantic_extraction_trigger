@@ -23,7 +23,7 @@ Eigen::Vector3f origin;
 int main(int argc, char** argv){
 
     SemanticExtractionTrigger trigger;
-    \
+    
     MessageReader reader;
     reader.open(argv[1]);
 
@@ -37,6 +37,7 @@ int main(int argc, char** argv){
     offset.translate(Eigen::Vector3f(-0.087,0.0475,1.5));
     offset.rotate(Eigen::Quaternionf(0.5,-0.5,0.5,-0.5));
 
+    cv::Mat map = cv::imread(argv[2]);
 
     BaseMessage* msg = 0;
     while ((msg = reader.readMessage())) {
@@ -58,7 +59,7 @@ int main(int argc, char** argv){
 
             trigger.extractClusters();
 
-            trigger.processClusters(argv[2]);
+            trigger.processClusters(map);
         }
 
     }

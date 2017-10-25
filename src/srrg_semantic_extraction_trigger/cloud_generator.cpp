@@ -36,4 +36,12 @@ void CloudGenerator::compute(){
         }
     }
 }
+
+void CloudGenerator::saveCloud(){
+    std::ofstream outfile;
+    outfile.open("depth.cloud");
+    _cloud->write(outfile);
+    outfile.close();
+}
+
 }

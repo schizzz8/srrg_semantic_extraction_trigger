@@ -16,6 +16,12 @@ public:
     inline void setDepthImage(const cv::Mat& image_){_cloud_generator->setImage(image_);}
     inline void setK(const Eigen::Matrix3f& K_){_cloud_generator->setInverseK(K_);}
     inline void setSensorOffset(const Eigen::Isometry3f& sensor_offset_){_cloud_generator->setSensorOffset(sensor_offset_);}
+    inline void setMapResolution(float resolution_){_map_resolution = resolution_;}
+    inline void setMapOrigin(const Eigen::Vector3f& origin_){_map_origin = origin_;}
+
+    inline CloudGenerator* cloudGenerator(){return _cloud_generator;}
+    inline StructureAnalyzer* structureAnalyzer(){return _structure_analyzer;}
+    inline ClustersExtractor* clustersExtractor(){return _clusters_extractor;}
 
     void generateCloud();
 
@@ -25,10 +31,10 @@ public:
 
     const ClustersExtractor::ClusterVector& clusters(){return _clusters;}
 
-    void processClusters(std::string path);
+    void processClusters(const cv::Mat& map_image,
+                         const Eigen::Isometry3f& global_transform = Eigen::Isometry3f::Identity());
 
 private:
-    cv::Mat _map_image;
     Eigen::Isometry3f _robot_transform;
     Eigen::Isometry3f _sensor_offset;
     Eigen::Matrix3f _K;
@@ -36,6 +42,8 @@ private:
     srrg_core::Cloud3D* _cloud;
     srrg_core::UnsignedCharImage _classified_image;
     ClustersExtractor::ClusterVector _clusters;
+    float _map_resolution;
+    Eigen::Vector3f _map_origin;
 
     CloudGenerator* _cloud_generator;
     StructureAnalyzer* _structure_analyzer;

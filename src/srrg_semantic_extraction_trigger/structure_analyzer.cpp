@@ -123,6 +123,6 @@ void StructureAnalyzer::compute(){
                 cell=0;
             }
         }
-
 }
+
 }

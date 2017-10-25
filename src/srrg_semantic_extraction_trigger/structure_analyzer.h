@@ -18,8 +18,15 @@ public:
 
     void compute();
 
-    const Eigen::Vector3f& origin(){return _origin;}
-    const srrg_core::UnsignedCharImage& classified(){return _classified;}
+    Eigen::Vector3f grid2world(Eigen::Vector2i input){return Eigen::Vector3f(input.x()*_resolution + _origin.x(),
+                                                                             (_classified.rows-input.y()-1)*_resolution + _origin.y(),
+                                                                             0);}
+
+    inline float resolution(){return _resolution;}
+    inline const Eigen::Vector3f& origin(){return _origin;}
+    inline const srrg_core::UnsignedCharImage& classified(){return _classified;}
+
+    void saveImage(){cv::imwrite("classified.png",_classified);}
 
 private:
 

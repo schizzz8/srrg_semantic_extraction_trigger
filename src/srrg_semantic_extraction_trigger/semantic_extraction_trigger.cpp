@@ -31,11 +31,6 @@ void SemanticExtractionTrigger::generateCloud(){
     _cloud_generator->compute();
     _cloud = _cloud_generator->cloud();
 
-    cerr << "saving cloud..." << endl;
-    std::ofstream outfile;
-    outfile.open("depth.cloud");
-    _cloud->write(outfile);
-    outfile.close();
 }
 
 void SemanticExtractionTrigger::analyzeStructure(){
@@ -70,39 +65,35 @@ void SemanticExtractionTrigger::extractClusters(){
 
 }
 
-void SemanticExtractionTrigger::processClusters(string path){
-
-    cv::Mat map = cv::imread(path);
-
-    float resolution = 0.05f;
-    Eigen::Vector3f origin (-23.4f,-12.2f,0);
+void SemanticExtractionTrigger::processClusters(const cv::Mat& map_image, const Eigen::Isometry3f &global_transform){
+    cv::Mat image = map_image.clone();
 
     for(int i=0; i<_clusters.size(); i++){
 
         ClustersExtractor::Cluster cluster = _clusters[i];
 
-        Eigen::Vector3f a_w (cluster.lower.y()*resolution + _structure_analyzer->origin().x(),
-                             (_classified_image.rows-cluster.upper.x()-1)*resolution + _structure_analyzer->origin().y(),
-                             0);
-        Eigen::Vector3f d_w (cluster.upper.y()*resolution + _structure_analyzer->origin().x(),
-                             (_classified_image.rows-cluster.lower.x()-1)*resolution + _structure_analyzer->origin().y(),
-                             0);
+        Eigen::Vector3f a_w = _structure_analyzer->grid2world(Eigen::Vector2i(cluster.lower.y(),cluster.upper.x()));
+        Eigen::Vector3f d_w = _structure_analyzer->grid2world(Eigen::Vector2i(cluster.upper.y(),cluster.lower.x()));
 
-        Eigen::Vector3f a_g = (a_w - origin)/resolution;
-        Eigen::Vector3f d_g = (d_w - origin)/resolution;
+        a_w = global_transform*a_w;
+        d_w = global_transform*d_w;
 
-        cv::Point2i a_gp (a_g.x(),map.rows-a_g.y()-1);
-        cv::Point2i d_gp (d_g.x(),map.rows-d_g.y()-1);
+        Eigen::Vector3f a_g = (a_w - _map_origin)/_map_resolution;
+        Eigen::Vector3f d_g = (d_w - _map_origin)/_map_resolution;
 
-        cv::rectangle(map,
+        cv::Point2i a_gp (a_g.x(),image.rows-a_g.y()-1);
+        cv::Point2i d_gp (d_g.x(),image.rows-d_g.y()-1);
+
+        cv::rectangle(image,
                       a_gp,
                       d_gp,
                       cv::Scalar(255,0,0),
                       1);
     }
 
-    cv::imshow("map with bounding boxes",map);
-    cv::waitKey();
+    cv::namedWindow("map with bounding boxes",CV_WINDOW_NORMAL);
+    cv::imshow("map with bounding boxes",image);
+    cv::waitKey(1);
 
 }
 
